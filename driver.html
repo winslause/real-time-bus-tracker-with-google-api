@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Route Management</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #f8f9fa;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar a {
+      color: #333;
+      font-size: 18px;
+      text-decoration: none;
+      padding: 10px;
+      display: block;
+    }
+
+    .sidebar a:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* Content area */
+    .content {
+      margin-left: 250px;
+      padding: 20px;
+      height: calc(100vh - 40px);
+      overflow: auto;
+    }
+
+    /* Right Sidebar for Route Details */
+    .route-details-sidebar {
+      height: 100vh;
+      width: 300px;
+      position: fixed;
+      top: 0;
+      right: 0;
+      background-color: #fff;
+      padding: 20px;
+      border-left: 1px solid #ddd;
+      overflow-y: auto;
+    }
+
+    .route-details h4 {
+      font-weight: bold;
+    }
+
+    .route-status {
+      background-color: #e5f8e8;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      color: #28a745;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .route-stops {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .route-stops li {
+      padding: 5px 0;
+    }
+
+    .completed {
+      color: #28a745; /* Green for completed stops */
+    }
+
+    .incomplete {
+      color: #dc3545; /* Red for incomplete stops */
+    }
+
+    /* Map container */
+    #map {
+      height: 100%;
+      width: 100%;
+      min-height: 500px;
+    }
+  </style>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Left Sidebar -->
+  <div class="sidebar">
+    <h2>BusTracker</h2>
+    <a href="bus.html"><i class="fas fa-bus"></i> Buses</a>
+    <a href="student.html"><i class="fas fa-users"></i> Students</a>
+    <a href="route.html"><i class="fas fa-route"></i> Routes</a>
+    <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+    <a href="#"><i class="fas fa-cogs"></i> Settings</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Route Management</h2>
+    </div>
+
+    <!-- Route Selection Dropdown -->
+    <div class="form-group">
+      <label for="routeSelect">Select Route:</label>
+      <select class="form-control" id="routeSelect">
+        <option value="route1">Route 1</option>
+        <option value="route2">Route 2</option>
+        <option value="route3">Route 3</option>
+      </select>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+  </div>
+
+  <!-- Right Sidebar for Route Details -->
+  <div class="route-details-sidebar" id="route-details-sidebar">
+    <h4>Route Details</h4>
+    <div id="route-status" class="route-status">Route Status: Active</div>
+    <h5>Stops:</h5>
+    <ul id="route-stops" class="route-stops"></ul>
+  </div>
+
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&v=weekly"
+    defer
+  ></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    const stopsRoute1 = [
+      { lat: -1.22419, lng: 36.9176, title: 'Mount Laverna School' },
+      { lat: -1.17793, lng: 36.98324, title: 'New Paleah Wholesalers Ltd' },
+      { lat: -1.19513, lng: 36.95832, title: 'MASTER BROWN INTERNATIONAL INSTITUTE' },
+      { lat: -1.19392, lng: 36.93817, title: 'Kahawa Sukari Baptist Church' },
+      { lat: -1.18888, lng: 36.93147, title: 'Ceptacore Systems Limited' },
+      { lat: -1.16824, lng: 36.98919, title: 'Springfield Park' },
+      { lat: -1.19170, lng: 36.92872, title: 'Ruda Education Center' },
+      { lat: -1.16029, lng: 36.95833, title: 'Shell - Kihunguro' },
+      { lat: -1.19475, lng: 36.95216, title: 'Kijana Msafi Caterers' },
+      { lat: -1.16475, lng: 36.95007, title: 'Sara kwa booster' },
+      { lat: -1.19722, lng: 36.90549, title: 'Horeb Ministries Githurai 45' },
+      { lat: -1.22419, lng: 36.9176, title: 'Mount Laverna School' } // Same starting point for Route 1
+    ];
+
+    const stopsRoute2 = [
+      { lat: -1.22419, lng: 36.9176, title: 'Mount Laverna School' },
+      { lat: -1.218972, lng: 36.923028, title: 'Kevis Beauty Salon and Barbershop' },
+      { lat: -1.219500, lng: 36.924278, title: 'Jeremy Entertainments' },
+            { lat: -1.220944, lng: 36.923417, title: 'Carlcare Service Ltd' },
+      { lat: -1.219889, lng: 36.926028, title: 'Riverbank Hotel' },
+      { lat: -1.221333, lng: 36.924250, title: 'Gigiri Towers Apartment' },
+      { lat: -1.223694, lng: 36.922750, title: 'Wema Flats' },
+      { lat: -1.222750, lng: 36.924944, title: 'Dove Apartments' },
+      { lat: -1.221111, lng: 36.927861, title: 'Zion Temple Kasarani' },
+      { lat: -1.221417, lng: 36.926611, title: 'Kibukahs Apartments' },
+      { lat: -1.22419, lng: 36.9176, title: 'Mount Laverna School' }
+    ];
+
+    const stopsRoute3 = [
+      { lat: -1.22419, lng: 36.9176, title: 'Mount Laverna School' },
+      { lat: -1.226500, lng: 36.916972, title: 'Transline Galaxy - Kasarani' },
+      { lat: -1.225611, lng: 36.919361, title: 'PCEA Ciiko Church' },
+            { lat: -1.227083, lng: 36.918667, title: 'Kasarani Hunters Genesis 2nd Street' },
+      { lat: -1.227417, lng: 36.922139, title: 'Santon Chemist' },
+      { lat: -1.225611, lng: 36.923278, title: 'ACK Good Samaritan Church Ciiko' },
+      { lat: -1.229556, lng: 36.921722, title: 'Mwiki Road Hospital & Pharmacy' },
+      { lat: -1.229361, lng: 36.924444, title: 'Anesmar Flats' },
+      { lat: -1.227611, lng: 36.926389, title: 'Claycity Business Center - Kasarani' },
+      { lat: -1.227944, lng: 36.924611, title: 'Rware Flats' },
+      { lat: -1.229361, lng: 36.927194, title: 'Vibramatt Supermarket' },
+      { lat: -1.225778, lng: 36.929000, title: 'LPG Gas Authorized Dealer' },
+      { lat: -1.226167, lng: 36.932833, title: '13th Street - Deliverance Road' },
+      { lat: -1.233028, lng: 36.930306, title: 'Deliverance Church Kasarani Mwiki' },
+      { lat: -1.22419, lng: 36.9176, title: 'Mount Laverna School' }
+    ];
+
+    const routes = {
+      route1: stopsRoute1,
+      route2: stopsRoute2,
+      route3: stopsRoute3
+    };
+
+    let map, directionsService, directionsRenderer, busMarker;
+    let selectedRoute = 'route1';
+    let completedStops = [];  // To track completed stops
+    let routePath = [];
+    let routeIndex = 0;
+    let busInterval;
+
+    function initMap() {
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer();
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 13,
+        center: { lat: -1.22419, lng: 36.9176 }
+      });
+
+      directionsRenderer.setMap(map);
+      // Initialize traffic layer
+      trafficLayer = new google.maps.TrafficLayer();
+      trafficLayer.setMap(map);
+
+      busMarker = new google.maps.Marker({
+        position: new google.maps.LatLng(stopsRoute1[0].lat, stopsRoute1[0].lng),
+        map: map,
+        icon: {
+          url: 'https://img.icons8.com/color/48/bus.png',
+          scaledSize: new google.maps.Size(40, 40)
+        }
+      });
+
+      updateRoute(selectedRoute);
+    }
+
+    function updateRoute(route) {
+      $('#route-stops').empty();
+      $('#route-status').text('Route Status: Active');
+
+      const selectedStops = routes[route];
+      const waypoints = selectedStops.slice(1, selectedStops.length - 1).map(stop => ({
+        location: new google.maps.LatLng(stop.lat, stop.lng),
+        stopover: true
+      }));
+
+      const request = {
+        origin: new google.maps.LatLng(selectedStops[0].lat, selectedStops[0].lng),
+        destination: new google.maps.LatLng(selectedStops[selectedStops.length - 1].lat, selectedStops[selectedStops.length - 1].lng),
+        waypoints: waypoints,
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+
+      directionsService.route(request, function (response, status) {
+        if (status === google.maps.DirectionsStatus.OK) {
+          directionsRenderer.setDirections(response);
+          routePath = response.routes[0].overview_path;
+
+          selectedStops.forEach(stop => {
+            $('#route-stops').append(`<li class="incomplete">${stop.title}</li>`);
+          });
+
+          animateBus(routePath);
+        } else {
+          console.error('Error fetching directions', status);
+        }
+      });
+    }
+
+    function animateBus(path) {
+      if (busInterval) {
+        clearInterval(busInterval); // Stop any previous animation
+      }
+
+      routeIndex = 0;
+      busMarker.setPosition(path[routeIndex]);
+      
+      const busMovementTime = 100;  // 1000 ms for bus movement between stops
+      const stopUpdateTime = 15000;   // 3000 ms for stop update delay
+
+      busInterval = setInterval(function () {
+        if (routeIndex < path.length - 1) {
+          routeIndex++;
+          busMarker.setPosition(path[routeIndex]);
+
+          const currentStop = routes[selectedRoute][routeIndex];
+          const stopElement = $('#route-stops li').eq(routeIndex);
+
+          setTimeout(function () {
+            if (!completedStops.includes(currentStop.title)) {
+              completedStops.push(currentStop.title);
+              stopElement.removeClass('incomplete').addClass('completed');
+              stopElement.text(`${currentStop.title} - Completed`);
+            }
+          }, stopUpdateTime);
+
+        } else {
+          clearInterval(busInterval); // Stop animation when route ends
+          $('#route-status').text('Route Status: Completed');
+        }
+      }, busMovementTime); // Move bus every 'busMovementTime' ms
+    }
+
+    // Change route based on user selection
+    $('#routeSelect').on('change', function () {
+      selectedRoute = $(this).val();
+      updateRoute(selectedRoute);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!doctype html>
+<!--
+ @license
+ Copyright 2019 Google LLC. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Layer</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+    /* Sidebar styles */
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #f8f9fa;
+      padding: 20px;
+      overflow-y: auto; /* Add scrollbar */
+    }
+
+    .sidebar a {
+      color: #333;
+      font-size: 18px;
+      text-decoration: none;
+      padding: 10px;
+      display: block;
+    }
+
+    .sidebar a:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* Content area */
+    .content {
+      margin-left: 250px;
+      margin-right: 300px;
+      padding: 20px;
+      height: calc(100vh - 40px); /* Ensuring full height minus padding */
+      overflow: auto; /* Add scrollbar for content */
+    }
+
+    /* Right Sidebar for Route Details */
+    .route-details-sidebar {
+      height: 100vh;
+      width: 300px;
+      position: fixed;
+      top: 0;
+      right: 0;
+      background-color: #fff;
+      padding: 20px;
+      border-left: 1px solid #ddd;
+      overflow-y: auto; /* Add scrollbar */
+    }
+
+    .route-details h4 {
+      font-weight: bold;
+    }
+
+    .route-details .eta {
+      color: #007bff;
+    }
+
+    .route-status {
+      background-color: #e5f8e8;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      color: #28a745;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    /* Map container */
+    #map {
+      height: 100%;
+      width: 100%;
+      min-height: 500px; /* Ensure the map has a minimum height */
+      overflow: auto; /* Add scrollbar for map section */
+    }
+  </style>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script type="module" src="./index.ts"></script>
+</head>
+<body>
+  <!-- Left Sidebar -->
+  <div class="sidebar">
+    <h2>BusTracker</h2>
+    <a href="bus.html"><i class="fas fa-bus"></i> Buses</a>
+    <a href="student.html"><i class="fas fa-users"></i> Students</a>
+    <a href="route.html"><i class="fas fa-route"></i> Routes</a>
+    <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+    <a href="settings.html"><i class="fas fa-cogs"></i> Settings</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Route Management</h2>
+      <div class="d-flex align-items-center">
+        <span class="mr-3">Admin View</span>
+        <img src="https://via.placeholder.com/40" alt="Admin User" class="rounded-circle">
+        <div class="ml-2">
+          <p class="mb-0">Admin User</p>
+          <p class="mb-0"><small>admin@anthena.edu</small></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+  </div>
+
+  <!-- Right Sidebar for Route Details -->
+  <div class="route-details-sidebar" id="route-details-sidebar">
+    <div class="route-details">
+      <h4>Route 1 Details</h4>
+      <div class="route-status">Picking up Students</div>
+      <p><strong>Estimated journey time:</strong> 45 mins</p>
+      <ul class="list-unstyled">
+        <li><i class="fas fa-map-marker-alt"></i> Mount Laverna School <span class="eta">ETA: 30 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> New Paleah Wholesalers Ltd <span class="eta">ETA: 15 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> MASTER BROWN INTERNATIONAL INSTITUTE <span class="eta">ETA: 10 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Kahawa Sukari Baptist Church <span class="eta">ETA: 20 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Ceptacore Systems Limited <span class="eta">ETA: 15 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Springfield Park <span class="eta">ETA: 25 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Ruda Education Center <span class="eta">ETA: 12 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Shell - Kihunguro <span class="eta">ETA: 18 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Kijana Msafi Caterers <span class="eta">ETA: 14 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Sara kwa booster <span class="eta">ETA: 16 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Horeb Ministries Githurai 45 <span class="eta">ETA: 22 mins</span></li>
+      </ul>
+    </div>
+    <div class="route-details">
+      <h4>Route 2 Details</h4>
+      <div class="route-status">Picking up Students</div>
+      <p><strong>Estimated journey time:</strong> 60 mins</p>
+      <ul class="list-unstyled">
+        <li><i class="fas fa-map-marker-alt"></i> Kevis Beauty Salon <span class="eta">ETA: 10 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Jeremy Entertainments <span class="eta">ETA: 20 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Carlcare Service Ltd <span class="eta">ETA: 15 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Riverbank Hotel <span class="eta">ETA: 25 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Gigiri Towers Apartment <span class="eta">ETA: 18 mins</span></li>
+      </ul>
+    </div>
+    <div class="route-details">
+      <h4>Route 3 Details</h4>
+      <div class="route-status">Picking up Students</div>
+      <p><strong>Estimated journey time:</strong> 75 mins</p>
+      <ul class="list-unstyled">
+        <li><i class="fas fa-map-marker-alt"></i> Transline Galaxy <span class="eta">ETA: 10 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> PCEA Ciiko Church <span class="eta">ETA: 15 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Kasarani Hunters <span class="eta">ETA: 20 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Santon Chemist <span class="eta">ETA: 30 mins</span></li>
+        <li><i class="fas fa-map-marker-alt"></i> Deliverance Church <span class="eta">ETA: 25 mins</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <!-- Leaflet Routing Machine JS -->
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&v=weekly"
+      defer
+    ></script>
+
+</body>
+</html>

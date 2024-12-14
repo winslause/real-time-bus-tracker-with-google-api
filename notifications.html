@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide-icons@0.1.9/dist/lucide.min.js"></script>
+    <style>
+        .notification-card {
+            border-left: 4px solid transparent;
+        }
+
+        .notification-card.new {
+            border-left-color: #3b82f6;
+        }
+
+        .modal-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #2d3748;
+            padding: 20px;
+            color: white;
+        }
+
+        .sidebar h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: block;
+            margin: 15px 0;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Left Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>BusTracker</h2>
+        <a href="bus.html"><i class="fas fa-bus"></i>Buses</a>
+        <a href="student.html"><i class="fas fa-users"></i>Students</a>
+        <a href="route.html"><i class="fas fa-route"></i>Routes</a>
+        <a href="notifications.html"><i class="fas fa-bell"></i>Notifications</a>
+        <a href="settings.html"><i class="fas fa-cogs"></i>Settings</a>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content">
+        <div class="container mx-auto py-8">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">Notifications</h2>
+                    <p id="unread-count" class="text-sm text-gray-500">0 unread notifications</p>
+                </div>
+                <div class="flex gap-4">
+                    <button id="send-notification-btn" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <span class="lucide lucide-message-circle w-4 h-4"></span> Send Notification
+                    </button>
+                    <select id="notification-filter" class="border rounded-lg px-3 py-2">
+                        <option value="all">All Notifications</option>
+                        <option value="unread">Unread Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Notifications List -->
+            <div id="notifications-list" class="space-y-4">
+                <!-- Notification cards will be injected here -->
+            </div>
+
+            <!-- Send Notification Modal -->
+            <div id="send-notification-modal" class="modal-bg hidden">
+                <div class="modal-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Send Notification</h3>
+                        <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                            <span class="lucide lucide-x w-5 h-5"></span>
+                        </button>
+                    </div>
+                    <form id="send-notification-form" class="space-y-4">
+                        <div>
+                            <label for="notification-type" class="block text-sm font-medium text-gray-700">Type</label>
+                            <select id="notification-type" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                                <option value="info">Information</option>
+                                <option value="warning">Warning</option>
+                                <option value="error">Error</option>
+                                <option value="success">Success</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="notification-title" class="block text-sm font-medium text-gray-700">Title</label>
+                            <input id="notification-title" type="text" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                        </div>
+
+                        <div>
+                            <label for="notification-message" class="block text-sm font-medium text-gray-700">Message</label>
+                            <textarea id="notification-message" rows="3" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                        </div>
+
+                        <div class="flex justify-end gap-2">
+                            <button type="button" id="cancel-modal" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <script>
+        const notifications = [
+            {
+                id: '1',
+                type: 'warning',
+                title: 'Bus Delay',
+                message: 'Bus 001 is running 10 minutes late on Route 1',
+                timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+                read: false
+            },
+            {
+                id: '2',
+                type: 'info',
+                title: 'New Student Added',
+                message: 'New student John Doe has been assigned to Route 2',
+                timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+                read: true
+            },
+            {
+                id: '3',
+                type: 'error',
+                title: 'Maintenance Required',
+                message: 'Bus 002 requires immediate maintenance check',
+                timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+                read: false
+            }
+        ];
+
+        let filteredNotifications = [...notifications];
+
+        // Render the notifications based on the current filter
+        function renderNotifications() {
+            const notificationsList = document.getElementById('notifications-list');
+            const unreadCount = document.getElementById('unread-count');
+
+            notificationsList.innerHTML = '';
+            filteredNotifications.forEach(notification => {
+                const notificationCard = document.createElement('div');
+                notificationCard.classList.add('notification-card', 'bg-white', 'rounded-lg', 'shadow', 'p-4');
+                if (!notification.read) notificationCard.classList.add('new');
+
+                notificationCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex gap-3">
+                            <span class="lucide lucide-${notification.type} w-5 h-5"></span>
+                            <div>
+                                <h3 class="font-medium">${notification.title}</h3>
+                                <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
+                                <p class="text-xs text-gray-400 mt-2">${new Date(notification.timestamp).toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            ${!notification.read ? `<button class="text-blue-600 hover:text-blue-800 text-sm" onclick="markAsRead('${notification.id}')">Mark as read</button>` : ''}
+                            <button class="text-gray-400 hover:text-gray-600" onclick="deleteNotification('${notification.id}')">
+                                <span class="lucide lucide-x w-4 h-4"></span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                notificationsList.appendChild(notificationCard);
+            });
+
+            unreadCount.innerText = `${filteredNotifications.filter(n => !n.read).length} unread notifications`;
+        }
+
+        // Mark a notification as read
+        function markAsRead(id) {
+            const notification = notifications.find(n => n.id === id);
+            if (notification) {
+                notification.read = true;
+                renderNotifications();
+            }
+        }
+
+        // Delete a notification
+        function deleteNotification(id) {
+            const index = notifications.findIndex(n => n.id === id);
+            if (index !== -1) {
+                notifications.splice(index, 1);
+                renderNotifications();
+            }
+        }
+
+        // Handle notification form submission
+        document.getElementById('send-notification-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const type = document.getElementById('notification-type').value;
+            const title = document.getElementById('notification-title').value;
+            const message = document.getElementById('notification-message').value;
+
+            // Create a new notification object
+            const newNotification = {
+                id: `${Date.now()}`,
+                type,
+                title,
+                message,
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+
+            // Add the new notification to the list
+            notifications.unshift(newNotification); // Add it to the top of the list
+
+            // Re-render the notifications list
+            filteredNotifications = [...notifications]; // Ensure the filter is updated
+            renderNotifications();
+
+            // Close the modal
+            document.getElementById('send-notification-modal').classList.add('hidden');
+        });
+
+        // Handle closing the modal
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('send-notification-modal').classList.add('hidden');
+        });
+
+        document.getElementById('cancel-modal').addEventListener('click', () => {
+            document.getElementById('send-notification-modal').classList.add('hidden');
+        });
+
+        // Handle filter change
+        document.getElementById('notification-filter').addEventListener('change', (e) => {
+            const filterValue = e.target.value;
+            if (filterValue === 'unread') {
+                filteredNotifications = notifications.filter(n => !n.read);
+            } else {
+                filteredNotifications = [...notifications];
+            }
+            renderNotifications();
+        });
+
+        // Show modal when sending notification
+        document.getElementById('send-notification-btn').addEventListener('click', () => {
+            document.getElementById('send-notification-modal').classList.remove('hidden');
+        });
+
+        // Initial rendering of notifications
+        renderNotifications();
+    </script>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
